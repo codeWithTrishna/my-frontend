@@ -2,23 +2,29 @@
 const workerURL = 'https://my-inventory-worker.shubhambalgude226.workers.dev';
 
 document.addEventListener('DOMContentLoaded', () => {
-  const authSection = document.getElementById("authSection");
-  const registerDiv = document.getElementById("registerDiv");
-  const loginDiv = document.getElementById("loginDiv");
-  const inventorySection = document.getElementById("inventorySection");
-
-  // Toggle views between registration and login
-  document.getElementById("showLogin").addEventListener("click", (e) => {
-    e.preventDefault();
-    registerDiv.style.display = "none";
-    loginDiv.style.display = "block";
-  });
-  document.getElementById("showRegister").addEventListener("click", (e) => {
-    e.preventDefault();
-    loginDiv.style.display = "none";
-    registerDiv.style.display = "block";
-  });
-
+  // Registration password visibility toggle
+  const registerShowPwd = document.getElementById("registerShowPassword");
+  const registerPwdInput = document.getElementById("registerPassword");
+  
+  if (registerShowPwd && registerPwdInput) {
+    registerShowPwd.addEventListener("change", function() {
+      // Debug: log the checkbox state
+      console.log("Register checkbox changed, checked:", this.checked);
+      registerPwdInput.type = this.checked ? "text" : "password";
+    });
+  }
+  
+  // Login password visibility toggle
+  const loginShowPwd = document.getElementById("loginShowPassword");
+  const loginPwdInput = document.getElementById("loginPassword");
+  
+  if (loginShowPwd && loginPwdInput) {
+    loginShowPwd.addEventListener("change", function() {
+      // Debug: log the checkbox state
+      console.log("Login checkbox changed, checked:", this.checked);
+      loginPwdInput.type = this.checked ? "text" : "password";
+    });
+  }
   // Toggle password visibility in registration form
   document.getElementById("registerShowPassword").addEventListener("change", function() {
     const passwordInput = document.getElementById("registerPassword");
