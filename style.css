@@ -189,6 +189,15 @@ table th {
   transition: opacity 0.5s ease, visibility 0.5s ease;
 }
 
+/* Toggle Label for Show Password */
+.toggle-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.9rem;
+}
+
+
 #toast.show {
   opacity: 1;
   visibility: visible;
