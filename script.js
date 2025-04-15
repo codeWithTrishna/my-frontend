@@ -2,40 +2,21 @@
 const workerURL = 'https://my-inventory-worker.shubhambalgude226.workers.dev';
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Registration password visibility toggle
-  const registerShowPwd = document.getElementById("registerShowPassword");
-  const registerPwdInput = document.getElementById("registerPassword");
-  
-  if (registerShowPwd && registerPwdInput) {
-    registerShowPwd.addEventListener("change", function() {
-      // Debug: log the checkbox state
-      console.log("Register checkbox changed, checked:", this.checked);
-      registerPwdInput.type = this.checked ? "text" : "password";
-    });
-  }
-  
-  // Login password visibility toggle
-  const loginShowPwd = document.getElementById("loginShowPassword");
-  const loginPwdInput = document.getElementById("loginPassword");
-  
-  if (loginShowPwd && loginPwdInput) {
-    loginShowPwd.addEventListener("change", function() {
-      // Debug: log the checkbox state
-      console.log("Login checkbox changed, checked:", this.checked);
-      loginPwdInput.type = this.checked ? "text" : "password";
-    });
-  }
-  // Toggle password visibility in registration form
-  document.getElementById("registerShowPassword").addEventListener("change", function() {
-    const passwordInput = document.getElementById("registerPassword");
-    passwordInput.type = this.checked ? "text" : "password";
+  // Toggle Password Visibility
+document.querySelectorAll('.toggle-password').forEach(toggle => {
+  toggle.addEventListener('click', () => {
+    const targetId = toggle.getAttribute('data-target');
+    const input = document.getElementById(targetId);
+    if (input.type === 'password') {
+      input.type = 'text';
+      toggle.textContent = '🙈'; // optional: eye-off icon
+    } else {
+      input.type = 'password';
+      toggle.textContent = '👁️';
+    }
   });
+});
 
-  // Toggle password visibility in login form
-  document.getElementById("loginShowPassword").addEventListener("change", function() {
-    const passwordInput = document.getElementById("loginPassword");
-    passwordInput.type = this.checked ? "text" : "password";
-  });
 
   // Registration
   document.getElementById("registerForm").addEventListener("submit", async (e) => {
