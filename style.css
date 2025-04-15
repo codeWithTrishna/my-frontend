@@ -189,16 +189,32 @@ table th {
   transition: opacity 0.5s ease, visibility 0.5s ease;
 }
 
-/* Toggle Label for Show Password */
-.toggle-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 0.9rem;
-}
+
 
 
 #toast.show {
   opacity: 1;
   visibility: visible;
+}
+
+.password-wrapper {
+  position: relative;
+  width: 80%;
+  margin: 10px auto;
+}
+
+.password-wrapper input[type="password"],
+.password-wrapper input[type="text"] {
+  width: 100%;
+  padding-right: 40px; /* space for the eye icon */
+}
+
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: #555;
 }
