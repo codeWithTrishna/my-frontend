@@ -19,6 +19,18 @@ document.addEventListener('DOMContentLoaded', () => {
     registerDiv.style.display = "block";
   });
 
+  // Toggle password visibility in registration form
+  document.getElementById("registerShowPassword").addEventListener("change", function() {
+    const passwordInput = document.getElementById("registerPassword");
+    passwordInput.type = this.checked ? "text" : "password";
+  });
+
+  // Toggle password visibility in login form
+  document.getElementById("loginShowPassword").addEventListener("change", function() {
+    const passwordInput = document.getElementById("loginPassword");
+    passwordInput.type = this.checked ? "text" : "password";
+  });
+
   // Registration
   document.getElementById("registerForm").addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -61,6 +73,8 @@ document.addEventListener('DOMContentLoaded', () => {
       showToast("Login error: " + err.message, true);
     }
   });
+});
+
 
   // Logout
   document.getElementById("logoutBtn").addEventListener("click", () => {
