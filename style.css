@@ -21,6 +21,43 @@ body {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
+/* Authentication Styles */
+#authSection {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.auth-box {
+  border: 1px solid #ccc;
+  padding: 20px;
+  margin: 0 auto 20px;
+  max-width: 400px;
+  border-radius: 8px;
+  background: #fafafa;
+}
+
+.auth-box input {
+  padding: 10px;
+  margin: 10px 0;
+  width: 80%;
+  font-size: 1rem;
+}
+
+.auth-box button {
+  padding: 10px 20px;
+  background-color: #007BFF;
+  border: none;
+  color: #fff;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.auth-box a {
+  color: #007BFF;
+}
+
 /* Header */
 header {
   text-align: center;
@@ -33,9 +70,15 @@ header h1 {
   margin-bottom: 10px;
 }
 
-header p {
-  font-size: 1.1rem;
-  color: #555;
+header button {
+  float: right;
+  margin-right: 20px;
+  padding: 10px 20px;
+  background-color: #dc3545;
+  border: none;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 /* Main Layout */
@@ -46,14 +89,15 @@ main {
 }
 
 /* Sections */
-.upload-section, .inventory-section {
+.upload-section, .inventory-section, .manual-section, .search-section {
   padding: 20px;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   background: #fafafa;
 }
 
-.upload-section h2, .inventory-section h2 {
+.upload-section h2, .inventory-section h2, 
+.manual-section h2, .search-section h2 {
   margin-bottom: 15px;
   color: #007BFF;
   font-size: 1.8rem;
@@ -69,7 +113,7 @@ form {
   margin-top: 10px;
 }
 
-input[type="file"] {
+input[type="file"], input[type="text"], input[type="number"], input[type="password"] {
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
