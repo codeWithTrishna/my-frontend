@@ -31,7 +31,7 @@ byId('show-login').onclick = e => {
 
 async function login(email, password) {
   const hash = await hashPassword(password);
-  const res = await fetch('/api/auth/login', {
+  const res = await fetch('${WORKER_URL}/api/auth/login', {
     method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({ email, hash })
   });
@@ -39,7 +39,7 @@ async function login(email, password) {
 }
 async function register(email, password) {
   const hash = await hashPassword(password);
-  const res = await fetch('/api/auth/register', {
+  const res = await fetch('${WORKER_URL}/api/auth/register', {
     method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({ email, hash })
   });
@@ -75,7 +75,7 @@ for (const [btnId, inputId] of [['toggleLoginPwd','login-password'],['toggleRegP
 byId('logout').onclick = () => location.reload();
 
 async function fetchInventory() {
-  const res = await fetch('/api/inventory', {
+  const res = await fetch('${WORKER_URL}/api/inventory', {
     headers: { 'Authorization': `Bearer ${currentUser.token}` }
   });
   const data = await res.json();
@@ -149,7 +149,7 @@ function editEntry(id) {
 
 // save to KV
 async function saveInventory() {
-  await fetch('/api/inventory', {
+  await fetch('${WORKER_URL}/api/inventory', {
     method:'PUT',
     headers:{
       'Content-Type':'application/json',
