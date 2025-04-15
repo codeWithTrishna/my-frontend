@@ -3,19 +3,22 @@ const workerURL = 'https://my-inventory-worker.shubhambalgude226.workers.dev';
 
 document.addEventListener('DOMContentLoaded', () => {
   // Toggle Password Visibility
+// Toggle Password Visibility with changing icon
 document.querySelectorAll('.toggle-password').forEach(toggle => {
   toggle.addEventListener('click', () => {
-    const targetId = toggle.getAttribute('data-target');
-    const input = document.getElementById(targetId);
+    const input = document.getElementById(toggle.dataset.target);
     if (input.type === 'password') {
       input.type = 'text';
-      toggle.textContent = '🙈'; // optional: eye-off icon
+      toggle.textContent = '🙈';           // eye‑with‑slash
+      toggle.title = 'Hide password';
     } else {
       input.type = 'password';
-      toggle.textContent = '👁️';
+      toggle.textContent = '👁️';          // regular eye
+      toggle.title = 'Show password';
     }
   });
 });
+
 
 
   // Registration
