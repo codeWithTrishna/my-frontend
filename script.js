@@ -7,6 +7,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const loginDiv = document.getElementById("loginDiv");
   const inventorySection = document.getElementById("inventorySection");
 
+  // Enforce login as the default view
+  registerDiv.style.display = "none";
+  loginDiv.style.display = "block";
+
   // Toggle views between registration and login
   document.getElementById("showLogin").addEventListener("click", (e) => {
     e.preventDefault();
@@ -38,32 +42,30 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Login
- // Login
-document.getElementById("loginForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const username = document.getElementById("loginUsername").value;
-  const password = document.getElementById("loginPassword").value;
-  try {
-    const res = await fetch(workerURL + '/login', {
-      method: 'POST',
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password })
-    });
-    if (res.ok) {
-      const data = await res.json();
-      localStorage.setItem("token", data.token);
-      authSection.style.display = "none";
-      inventorySection.style.display = "block";
-      fetchInventory();
-    } else {
-      const errorMsg = await res.text();
-      showToast("Login failed: " + errorMsg, true);
+  document.getElementById("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const username = document.getElementById("loginUsername").value;
+    const password = document.getElementById("loginPassword").value;
+    try {
+      const res = await fetch(workerURL + '/login', {
+        method: 'POST',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        localStorage.setItem("token", data.token);
+        authSection.style.display = "none";
+        inventorySection.style.display = "block";
+        fetchInventory();
+      } else {
+        const errorMsg = await res.text();
+        showToast("Login failed: " + errorMsg, true);
+      }
+    } catch (err) {
+      showToast("Login error: " + err.message, true);
     }
-  } catch (err) {
-    showToast("Login error: " + err.message, true);
-  }
-});
-
+  });
 
   // Logout
   document.getElementById("logoutBtn").addEventListener("click", () => {
