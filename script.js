@@ -1,196 +1,237 @@
 // Update with your actual Worker URL
 const workerURL = 'https://my-inventory-worker.shubhambalgude226.workers.dev';
 
-// ---- STATE ----
-let currentUser = null;
-let inventory = [];     // array of { id, ...fields }
-let headers = [];       // current field names
+document.addEventListener('DOMContentLoaded', () => {
+  const authSection = document.getElementById("authSection");
+  const registerDiv = document.getElementById("registerDiv");
+  const loginDiv = document.getElementById("loginDiv");
+  const inventorySection = document.getElementById("inventorySection");
 
-// ---- UTILITIES ----
-async function hashPassword(password) {
-  const buf = await crypto.subtle.digest(
-    'SHA-256',
-    new TextEncoder().encode(password)
-  );
-  return Array.from(new Uint8Array(buf))
-    .map(b => b.toString(16).padStart(2,'0')).join('');
-}
-function show(el){ el.classList.remove('hidden'); }
-function hide(el){ el.classList.add('hidden'); }
-function byId(id){ return document.getElementById(id); }
-
-// ---- AUTH FLOW ----
-byId('show-register').onclick = e => {
-  e.preventDefault();
-  hide(byId('login-form')); show(byId('register-form'));
-};
-byId('show-login').onclick = e => {
-  e.preventDefault();
-  hide(byId('register-form')); show(byId('login-form'));
-};
-
-async function login(email, password) {
-  const hash = await hashPassword(password);
-  const res = await fetch('${WORKER_URL}/api/auth/login', {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ email, hash })
+  // Toggle views between registration and login
+  document.getElementById("showLogin").addEventListener("click", (e) => {
+    e.preventDefault();
+    registerDiv.style.display = "none";
+    loginDiv.style.display = "block";
   });
-  return res.ok ? res.json() : null;
-}
-async function register(email, password) {
-  const hash = await hashPassword(password);
-  const res = await fetch('${WORKER_URL}/api/auth/register', {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ email, hash })
+  document.getElementById("showRegister").addEventListener("click", (e) => {
+    e.preventDefault();
+    loginDiv.style.display = "none";
+    registerDiv.style.display = "block";
   });
-  return res.ok;
-}
 
-byId('login-form').onsubmit = async e => {
-  e.preventDefault();
-  const user = await login(
-    byId('login-email').value, byId('login-password').value
-  );
-  if (user) startDashboard(user);
-  else alert('Login failed');
-};
-byId('register-form').onsubmit = async e => {
-  e.preventDefault();
-  const ok = await register(
-    byId('reg-email').value, byId('reg-password').value
-  );
-  if (ok) { alert('Registered! Please log in.'); show(byId('login-form')); hide(byId('register-form')); }
-  else alert('Registration failed');
-};
-
-// toggle password visibility
-for (const [btnId, inputId] of [['toggleLoginPwd','login-password'],['toggleRegPwd','reg-password']]) {
-  byId(btnId).onclick = () => {
-    const inp = byId(inputId);
-    inp.type = inp.type==='password'?'text':'password';
-  };
-}
-
-// ---- DASHBOARD ----
-byId('logout').onclick = () => location.reload();
-
-async function fetchInventory() {
-  const res = await fetch('${WORKER_URL}/api/inventory', {
-    headers: { 'Authorization': `Bearer ${currentUser.token}` }
+  // Registration
+  document.getElementById("registerForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const username = document.getElementById("registerUsername").value;
+    const password = document.getElementById("registerPassword").value;
+    try {
+      const res = await fetch(workerURL + '/register', {
+        method: 'POST',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+      });
+      const msg = await res.text();
+      showToast(msg);
+    } catch (err) {
+      showToast("Registration error: " + err.message, true);
+    }
   });
-  const data = await res.json();
-  inventory = data.entries;
-  headers = data.fields;
-  renderTable(inventory, headers);
-}
 
-function renderTable(entries, cols) {
-  // headers
-  const thRow = byId('table-headers');
-  thRow.innerHTML = cols.map(c => `<th>${c}</th>`).join('') + '<th>Actions</th>';
-  // body
-  const body = byId('table-body');
-  body.innerHTML = entries.map(e => {
-    const cells = cols.map(c => `<td>${e[c]||''}</td>`).join('');
-    return `<tr data-id="${e.id}">${cells}
-      <td>
-        <button class="edit">✏️</button>
-        <button class="delete">🗑️</button>
-      </td>
-    </tr>`;
-  }).join('');
-  // attach action handlers
-  body.querySelectorAll('.delete').forEach(btn => {
-    btn.onclick = e => deleteEntry(e.target.closest('tr').dataset.id);
+  // Login
+  document.getElementById("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const username = document.getElementById("loginUsername").value;
+    const password = document.getElementById("loginPassword").value;
+    try {
+      const res = await fetch(workerURL + '/login', {
+        method: 'POST',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        localStorage.setItem("token", data.token);
+        authSection.style.display = "none";
+        inventorySection.style.display = "block";
+        fetchInventory();
+      } else {
+        showToast("Login failed. Please check your credentials.", true);
+      }
+    } catch (err) {
+      showToast("Login error: " + err.message, true);
+    }
   });
-  body.querySelectorAll('.edit').forEach(btn => {
-    btn.onclick = e => editEntry(e.target.closest('tr').dataset.id);
+
+  // Logout
+  document.getElementById("logoutBtn").addEventListener("click", () => {
+    localStorage.removeItem("token");
+    authSection.style.display = "block";
+    inventorySection.style.display = "none";
   });
-}
 
-// search
-byId('search-bar').oninput = e => {
-  const q = e.target.value.toLowerCase();
-  const filtered = inventory.filter(item =>
-    headers.some(h => (item[h]||'').toLowerCase().includes(q))
-  );
-  renderTable(filtered, headers);
-};
+  // File upload (CSV and XLSX)
+  document.getElementById("uploadForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const fileInput = document.getElementById("fileInput");
+    if (!fileInput.files.length) {
+      showToast("Please select a file to upload.", true);
+      return;
+    }
+    const file = fileInput.files[0];
+    const token = localStorage.getItem("token");
+    try {
+      const fileData = await file.arrayBuffer();
+      let contentType = file.type;
+      // Fallback for XLS extensions
+      if (!contentType && file.name.endsWith(".xls")) {
+        contentType = "application/vnd.ms-excel";
+      }
+      const res = await fetch(workerURL, {
+        method: 'POST',
+        headers: {
+          "Authorization": "Bearer " + token,
+          "Content-Type": contentType
+        },
+        body: fileData
+      });
+      const msg = await res.text();
+      showToast(msg);
+      fetchInventory();
+    } catch (err) {
+      showToast("Upload error: " + err.message, true);
+    }
+  });
 
-// add entry
-byId('add-entry-btn').onclick = () => {
-  const newObj = { id: Date.now().toString() };
-  headers.forEach(h => newObj[h]='');
-  inventory.push(newObj);
-  renderTable(inventory, headers);
-  saveInventory();
-};
-
-// delete & edit
-async function deleteEntry(id) {
-  inventory = inventory.filter(e => e.id!==id);
-  renderTable(inventory, headers);
-  await saveInventory();
-}
-function editEntry(id) {
-  const row = [...byId('table-body').rows]
-    .find(r => r.dataset.id===id);
-  headers.forEach((h,i) => {
-    const cell = row.cells[i];
-    const val = cell.textContent;
-    cell.innerHTML = `<input value="${val}">`;
-    cell.firstChild.onblur = () => {
-      inventory.find(e=>e.id===id)[h] = cell.firstChild.value;
-      saveInventory();
-      renderTable(inventory, headers);
+  // Manual addition
+  document.getElementById("manualForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const record = {
+      itemName: document.getElementById("itemName").value,
+      quantity: document.getElementById("quantity").value,
+      description: document.getElementById("description").value
     };
+    const token = localStorage.getItem("token");
+    try {
+      const res = await fetch(workerURL, {
+        method: 'POST',
+        headers: {
+          "Authorization": "Bearer " + token,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(record)
+      });
+      const msg = await res.text();
+      showToast(msg);
+      fetchInventory();
+    } catch (err) {
+      showToast("Error adding record: " + err.message, true);
+    }
   });
-}
 
-// save to KV
-async function saveInventory() {
-  await fetch('${WORKER_URL}/api/inventory', {
-    method:'PUT',
-    headers:{
-      'Content-Type':'application/json',
-      'Authorization': `Bearer ${currentUser.token}`
-    },
-    body: JSON.stringify({ fields: headers, entries: inventory })
+  // Refresh inventory
+  document.getElementById("refreshBtn").addEventListener("click", () => {
+    fetchInventory();
   });
-}
 
-// file upload & parse
-byId('upload-btn').onclick = () => {
-  const file = byId('file-input').files[0];
-  if (!file) return alert('Select a file');
-  const ext = file.name.split('.').pop().toLowerCase();
-  if (ext==='csv') {
-    Papa.parse(file, {
-      header: true, complete: r => applyUpload(r.data, Object.keys(r.data[0]||{}))
-    });
-  } else {
-    const reader = new FileReader();
-    reader.onload = e => {
-      const wb = XLSX.read(e.target.result, { type: 'array' });
-      const ws = wb.Sheets[wb.SheetNames[0]];
-      const data = XLSX.utils.sheet_to_json(ws, { defval:'' });
-      applyUpload(data, Object.keys(data[0]||{}));
-    };
-    reader.readAsArrayBuffer(file);
+  // Clear inventory
+  document.getElementById("clearBtn").addEventListener("click", async () => {
+    const token = localStorage.getItem("token");
+    try {
+      const res = await fetch(workerURL, {
+        method: 'DELETE',
+        headers: {
+          "Authorization": "Bearer " + token
+        }
+      });
+      const msg = await res.text();
+      showToast(msg);
+      fetchInventory();
+    } catch (err) {
+      showToast("Error clearing inventory: " + err.message, true);
+    }
+  });
+
+  // Search inventory
+  document.getElementById("searchBtn").addEventListener("click", () => {
+    const query = document.getElementById("searchInput").value;
+    fetchInventory(query);
+  });
+
+  // Fetch inventory (with optional search)
+  async function fetchInventory(searchQuery = "") {
+    const token = localStorage.getItem("token");
+    let url = workerURL;
+    if (searchQuery) url += "?q=" + encodeURIComponent(searchQuery);
+    try {
+      const res = await fetch(url, {
+        method: 'GET',
+        headers: { "Authorization": "Bearer " + token }
+      });
+      if (!res.ok) throw new Error("Failed to fetch inventory.");
+      const data = await res.json();
+      displayInventory(data);
+      showToast("Inventory refreshed.");
+    } catch (err) {
+      showToast("Fetch error: " + err.message, true);
+    }
   }
-};
-function applyUpload(data, cols) {
-  headers = cols;
-  inventory = data.map((row,i)=>({ id: Date.now()+i+'', ...row }));
-  renderTable(inventory, headers);
-  saveInventory();
-}
 
-// start dashboard
-function startDashboard(user) {
-  currentUser = user;
-  hide(byId('auth-container'));
-  show(byId('dashboard'));
-  fetchInventory();
-}
+  // Display inventory table with an edit button for each record
+  window.editRecord = async function(key) {
+    const token = localStorage.getItem("token");
+    const currentData = prompt("Enter new JSON data for record with key " + key + " (must be valid JSON):");
+    if (!currentData) return;
+    try {
+      const updatedData = JSON.parse(currentData);
+      const res = await fetch(workerURL + "?key=" + encodeURIComponent(key), {
+        method: 'PUT',
+        headers: {
+          "Authorization": "Bearer " + token,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(updatedData)
+      });
+      const msg = await res.text();
+      showToast(msg);
+      fetchInventory();
+    } catch (err) {
+      showToast("Update error: " + err.message, true);
+    }
+  };
 
+  function displayInventory(inventory) {
+    const container = document.getElementById("inventoryContainer");
+    if (!inventory.length) {
+      container.innerHTML = "<p>No inventory data available.</p>";
+      return;
+    }
+    const headers = Object.keys(inventory[0]);
+    headers.push("Actions");
+    let table = `<table>
+      <thead>
+        <tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr>
+      </thead>
+      <tbody>`;
+    inventory.forEach(item => {
+      table += `<tr>`;
+      headers.slice(0, -1).forEach(h => {
+        table += `<td>${item[h] || "N/A"}</td>`;
+      });
+      table += `<td><button onclick="editRecord('${item.key}')">Edit</button></td>`;
+      table += `</tr>`;
+    });
+    table += `</tbody></table>`;
+    container.innerHTML = table;
+  }
+
+  // Toast notifications
+  function showToast(message, isError = false) {
+    const toast = document.getElementById("toast");
+    toast.textContent = message;
+    toast.style.backgroundColor = isError ? 'red' : '#28a745';
+    toast.classList.add("show");
+    setTimeout(() => {
+      toast.classList.remove("show");
+    }, 3000);
+  }
+});
