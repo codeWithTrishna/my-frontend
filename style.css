@@ -7,18 +7,19 @@
 
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #f0f4f8;
+  background: #eef2f7;
   color: #333;
   line-height: 1.6;
 }
 
+/* Container/Card Style */
 .container {
   max-width: 1200px;
-  margin: 30px auto;
+  margin: 40px auto;
   padding: 20px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 /* Authentication Styles */
@@ -28,23 +29,37 @@ body {
 }
 
 .auth-box {
-  border: 1px solid #ccc;
-  padding: 20px;
-  margin: 0 auto 20px;
+  border: 1px solid #ddd;
+  padding: 30px;
+  margin: 20px auto;
   max-width: 400px;
-  border-radius: 8px;
+  border-radius: 10px;
   background: #fafafa;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.auth-box:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.auth-box h2 {
+  margin-bottom: 20px;
+  color: #007BFF;
 }
 
 .auth-box input {
-  padding: 10px;
+  padding: 12px;
   margin: 10px 0;
-  width: 80%;
+  width: 85%;
   font-size: 1rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
 }
 
 .auth-box button {
-  padding: 10px 20px;
+  padding: 12px 20px;
   background-color: #007BFF;
   border: none;
   color: #fff;
@@ -52,16 +67,29 @@ body {
   font-size: 1rem;
   cursor: pointer;
   margin-top: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.auth-box button:hover {
+  background-color: #0056b3;
 }
 
 .auth-box a {
   color: #007BFF;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.auth-box a:hover {
+  text-decoration: underline;
 }
 
 /* Header */
 header {
   text-align: center;
   margin-bottom: 20px;
+  border-bottom: 2px solid #007BFF;
+  padding-bottom: 10px;
 }
 
 header h1 {
@@ -73,12 +101,17 @@ header h1 {
 header button {
   float: right;
   margin-right: 20px;
-  padding: 10px 20px;
+  padding: 12px 22px;
   background-color: #dc3545;
   border: none;
   color: #fff;
   border-radius: 4px;
   cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+header button:hover {
+  background-color: #c82333;
 }
 
 /* Main Layout */
@@ -86,6 +119,7 @@ main {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  padding: 10px;
 }
 
 /* Sections */
@@ -93,7 +127,7 @@ main {
   padding: 20px;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
-  background: #fafafa;
+  background: #f9f9f9;
 }
 
 .upload-section h2, .inventory-section h2, 
@@ -113,8 +147,11 @@ form {
   margin-top: 10px;
 }
 
-input[type="file"], input[type="text"], input[type="number"], input[type="password"] {
-  padding: 10px;
+input[type="file"], 
+input[type="text"], 
+input[type="number"], 
+input[type="password"] {
+  padding: 12px;
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 1rem;
@@ -182,11 +219,12 @@ table th {
   right: 20px;
   background-color: #28a745;
   color: #fff;
-  padding: 10px 20px;
+  padding: 12px 24px;
   border-radius: 4px;
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.5s ease, visibility 0.5s ease;
+  font-size: 1rem;
 }
 
 #toast.show {
