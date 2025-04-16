@@ -38,29 +38,32 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Login
-  document.getElementById("loginForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const username = document.getElementById("loginUsername").value;
-    const password = document.getElementById("loginPassword").value;
-    try {
-      const res = await fetch(workerURL + '/login', {
-        method: 'POST',
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password })
-      });
-      if (res.ok) {
-        const data = await res.json();
-        localStorage.setItem("token", data.token);
-        authSection.style.display = "none";
-        inventorySection.style.display = "block";
-        fetchInventory();
-      } else {
-        showToast("Login failed. Please check your credentials.", true);
-      }
-    } catch (err) {
-      showToast("Login error: " + err.message, true);
+ // Login
+document.getElementById("loginForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const username = document.getElementById("loginUsername").value;
+  const password = document.getElementById("loginPassword").value;
+  try {
+    const res = await fetch(workerURL + '/login', {
+      method: 'POST',
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      localStorage.setItem("token", data.token);
+      authSection.style.display = "none";
+      inventorySection.style.display = "block";
+      fetchInventory();
+    } else {
+      const errorMsg = await res.text();
+      showToast("Login failed: " + errorMsg, true);
     }
-  });
+  } catch (err) {
+    showToast("Login error: " + err.message, true);
+  }
+});
+
 
   // Logout
   document.getElementById("logoutBtn").addEventListener("click", () => {
