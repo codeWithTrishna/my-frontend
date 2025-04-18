@@ -8,11 +8,17 @@ body {
 }
 
 /* UTILS */
-.hidden { display: none; }
-.btn-action, .btn-logout, #authSubmit {
-  border: none; cursor: pointer; border-radius: 6px;
-  font-weight: 600; transition: background 0.3s ease;
+/* either... */
+/* .hidden {
+  display: none !important;
 }
+ */
+/* or even better, higher specificity without !important: */
+#authContainer.hidden,
+#dashboard.hidden {
+  display: none;
+}
+
 
 /* AUTH CONTAINER */
 #authContainer {
