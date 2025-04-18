@@ -1,233 +1,155 @@
-/* Reset & Global Styles */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
+/* Google Font */
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #eef2f7;
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  background: linear-gradient(135deg,#4e8cff,#9d4edd);
+  min-height: 100vh;
   color: #333;
-  line-height: 1.6;
 }
 
-/* Container/Card Style */
-.container {
-  max-width: 1200px;
-  margin: 40px auto;
-  padding: 20px;
-  background: #ffffff;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+/* UTILS */
+.hidden { display: none; }
+.btn-action, .btn-logout, #authSubmit {
+  border: none; cursor: pointer; border-radius: 6px;
+  font-weight: 600; transition: background 0.3s ease;
 }
 
-/* Authentication Styles */
-#authSection {
-  text-align: center;
-  margin: 20px 0;
+/* AUTH CONTAINER */
+#authContainer {
+  display: flex; align-items: center; justify-content: center;
+  height: 100vh; padding: 1rem;
+}
+.auth-card {
+  background: #fff; padding: 2rem;
+  border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  width: 100%; max-width: 360px; text-align: center;
+}
+.auth-card h2 {
+  margin-bottom: 1.5rem; font-size: 1.6rem;
+}
+.auth-card input {
+  width: 100%; padding: .85rem; margin-bottom: 1rem;
+  border: 1px solid #ddd; border-radius: 6px;
+}
+#authSubmit {
+  width: 100%; padding: .85rem;
+  background: #0f172a; color: #fff;
+}
+#authSubmit:hover { background: #131c2e; }
+.switch-text {
+  margin-top: 1rem; font-size: .9rem;
+}
+.switch-text a { color: #4e8cff; text-decoration: none; }
+.switch-text a:hover { text-decoration: underline; }
+
+/* DASHBOARD HEADER */
+.dash-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 2rem; background: rgba(255,255,255,0.25);
+  backdrop-filter: blur(8px);
+}
+.dash-header .title {
+  display: flex; align-items: center;
+}
+.dash-header .title i {
+  font-size: 2rem; margin-right: .75rem; color: #fff;
+}
+.dash-header .title h1 {
+  margin: 0; font-size: 1.8rem; color: #fff;
+}
+.dash-header .title p {
+  margin: 0; font-size: .9rem; color: #f0f0f0;
+}
+.btn-logout {
+  background: #fff; color: #0f172a; padding: .6rem 1rem;
+}
+.btn-logout:hover { background: #f0f0f0; }
+
+/* MAIN GRID */
+.dash-main {
+  padding: 2rem;
+  display: grid; grid-gap: 2rem;
+}
+.grid-two {
+  display: grid; grid-template-columns: 1fr 1fr; grid-gap: 2rem;
+}
+.card {
+  background: #fff; border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+  padding: 1.5rem; position: relative;
 }
 
-.auth-box {
-  border: 1px solid #ddd;
-  padding: 30px;
-  margin: 20px auto;
-  max-width: 400px;
-  border-radius: 10px;
-  background: #fafafa;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+/* UPLOAD CARD */
+.upload-card h2 {
+  margin-top: 0; font-size: 1.3rem; color: #0f172a;
+}
+.file-drop {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  border: 2px dashed #ccc; border-radius: 8px;
+  height: 150px; margin: 1rem 0; cursor: pointer;
+  position: relative; overflow: hidden;
+}
+.file-drop i { color: #999; }
+.file-drop p { font-size: .95rem; color: #777; text-align: center; }
+.file-drop input {
+  position: absolute; width: 100%; height: 100%;
+  top: 0; left: 0; opacity: 0; cursor: pointer;
+}
+.btn-action {
+  width: 100%; padding: .7rem; background: #4e8cff; color: #fff;
+}
+.btn-action:hover { background: #3b6fd1; }
+.upload-card .hint {
+  display: block; text-align: center; margin-top: .5rem;
+  color: #aaa; font-size: .8rem;
 }
 
-.auth-box:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+/* MANUAL CARD */
+.manual-card h2 {
+  margin-top: 0; font-size: 1.3rem; color: #0f172a;
+}
+.manual-card input {
+  width: 100%; padding: .7rem; margin-bottom: 1rem;
+  border: 1px solid #ddd; border-radius: 6px;
 }
 
-.auth-box h2 {
-  margin-bottom: 20px;
-  color: #007BFF;
+/* TABLE CARD */
+.table-card {
+  grid-column: span 2;
 }
-
-.auth-box input {
-  padding: 12px;
-  margin: 10px 0;
-  width: 85%;
-  font-size: 1rem;
-  border-radius: 4px;
-  border: 1px solid #ccc;
+.table-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 1rem;
 }
-
-.auth-box button {
-  padding: 12px 20px;
-  background-color: #007BFF;
-  border: none;
-  color: #fff;
-  border-radius: 4px;
-  font-size: 1rem;
-  cursor: pointer;
-  margin-top: 10px;
-  transition: background-color 0.3s ease;
+.table-header h2 {
+  margin: 0; font-size: 1.3rem; color: #0f172a;
 }
-
-.auth-box button:hover {
-  background-color: #0056b3;
+.table-header input {
+  padding: .6rem; border: 1px solid #ddd; border-radius: 6px;
+  width: 200px;
 }
-
-.auth-box a {
-  color: #007BFF;
-  text-decoration: none;
-  font-weight: bold;
-}
-
-.auth-box a:hover {
-  text-decoration: underline;
-}
-
-/* Header */
-header {
-  text-align: center;
-  margin-bottom: 20px;
-  border-bottom: 2px solid #007BFF;
-  padding-bottom: 10px;
-}
-
-header h1 {
-  font-size: 2.5rem;
-  color: #007BFF;
-  margin-bottom: 10px;
-}
-
-header button {
-  float: right;
-  margin-right: 20px;
-  padding: 12px 22px;
-  background-color: #dc3545;
-  border: none;
-  color: #fff;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-header button:hover {
-  background-color: #c82333;
-}
-
-/* Main Layout */
-main {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  padding: 10px;
-}
-
-/* Sections */
-.upload-section, .inventory-section, .manual-section, .search-section {
-  padding: 20px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  background: #f9f9f9;
-}
-
-.upload-section h2, .inventory-section h2, 
-.manual-section h2, .search-section h2 {
-  margin-bottom: 15px;
-  color: #007BFF;
-  font-size: 1.8rem;
-  border-bottom: 2px solid #007BFF;
-  padding-bottom: 5px;
-}
-
-/* Form Styles */
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-input[type="file"], 
-input[type="text"], 
-input[type="number"], 
-input[type="password"] {
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 1rem;
-}
-
-button {
-  padding: 12px 20px;
-  background-color: #007BFF;
-  border: none;
-  color: #fff;
-  border-radius: 4px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-button:hover {
-  background-color: #0056b3;
-}
-
-/* Inventory Section */
-.inventory-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.inventory-header .buttons {
-  display: flex;
-  gap: 10px;
-}
-
 #inventoryContainer {
-  margin-top: 15px;
   overflow-x: auto;
 }
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
+#inventoryTable {
+  width: 100%; border-collapse: collapse;
+}
+#inventoryTable th, #inventoryTable td {
+  padding: .75rem; border-bottom: 1px solid #eee; text-align: left;
+}
+#inventoryTable th {
+  background: #f9fafb; font-weight: 600; color: #0f172a;
+}
+#inventoryTable .empty {
+  text-align: center; color: #999;
 }
 
-table th, table td {
-  border: 1px solid #ddd;
-  padding: 12px;
-  text-align: left;
-}
-
-table th {
-  background-color: #007BFF;
-  color: #fff;
-}
-
-/* Message & Toast Styles */
-.message {
-  margin-top: 10px;
-  font-size: 0.95rem;
-  color: #555;
-}
-
+/* TOAST */
 #toast {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background-color: #28a745;
-  color: #fff;
-  padding: 12px 24px;
-  border-radius: 4px;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.5s ease, visibility 0.5s ease;
-  font-size: 1rem;
+  position: fixed; bottom: 1.5rem; right: 1.5rem;
+  background: rgba(0,0,0,0.7); color: #fff; padding: .8rem 1.2rem;
+  border-radius: 6px; opacity: 0; pointer-events: none;
+  transition: opacity 0.3s ease;
 }
-
-#toast.show {
-  opacity: 1;
-  visibility: visible;
-}
+#toast.show { opacity: 1; }
