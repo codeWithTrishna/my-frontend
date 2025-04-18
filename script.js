@@ -5,6 +5,7 @@ console.log("⏳ script.js loaded");
 const workerURL = 'https://my-inventory-worker.shubhambalgude226.workers.dev';
 
 document.addEventListener('DOMContentLoaded', () => {
+  console.log("🔌 attaching authForm listener");
   // auth elements
   const authContainer = document.getElementById('authContainer');
   const authTitle = document.getElementById('authTitle');
@@ -48,6 +49,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // AUTH SUBMIT
   authForm.addEventListener('submit', async e => {
+    console.log("✉️ authForm submitted; isLogin =", isLogin);
+
     e.preventDefault();
     const endpoint = isLogin ? '/login' : '/register';
     try {
