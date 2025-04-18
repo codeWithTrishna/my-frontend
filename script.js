@@ -1,3 +1,6 @@
+console.log("⏳ script.js loaded");
+
+
 // your worker URL here
 const workerURL = 'https://my-inventory-worker.shubhambalgude226.workers.dev';
 
