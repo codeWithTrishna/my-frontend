@@ -79,14 +79,12 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // SHOW DASHBOARD
-  function showDashboard() {
-  console.log("🔑 showDashboard called");
-  console.log("Before:", authContainer.classList.toString());
-  authContainer.classList.add('hidden');
-  console.log("After:",  authContainer.classList.toString());
-  dashboard.classList.remove('hidden');
+ function showDashboard() {
+  authContainer.style.display = 'none';
+  dashboard.style.display     = 'block';
   fetchInventory();
 }
+
 
 
   // LOGOUT
