@@ -80,10 +80,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // SHOW DASHBOARD
  function showDashboard() {
-  authContainer.style.display = 'none';
-  dashboard.style.display     = 'block';
-  fetchInventory();
-}
+    console.log("🔑 showDashboard called");
+    authContainer.classList.add('hidden');
+    dashboard.classList.remove('hidden');
+    fetchInventory();
+  }
 
 
 
