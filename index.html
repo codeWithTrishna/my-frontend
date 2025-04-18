@@ -1,86 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Inventory Management Dashboard</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Inventory Dashboard</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <!-- Font Awesome for icons -->
+  <script src="https://kit.fontawesome.com/yourkit.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="container">
-    <!-- Authentication Section -->
-    <section id="authSection">
-      <div id="registerDiv" class="auth-box" style="display: none;">
-        <h2>Register</h2>
-        <form id="registerForm">
-          <input type="text" id="registerUsername" placeholder="Username" required>
-          <input type="password" id="registerPassword" placeholder="Password" required>
-          <button type="submit">Register</button>
-        </form>
-        <p>
-          Already registered? <a href="#" id="showLogin">Login here</a>
-        </p>
-      </div>
-      <div id="loginDiv" class="auth-box" style="display: block;">
-        <h2>Login</h2>
-        <form id="loginForm">
-          <input type="text" id="loginUsername" placeholder="Username" required>
-          <input type="password" id="loginPassword" placeholder="Password" required>
-          <button type="submit">Login</button>
-        </form>
-        <p>
-          Not registered? <a href="#" id="showRegister">Register here</a>
-        </p>
-      </div>
-    </section>
-    
-    <!-- Inventory Section -->
-    <section id="inventorySection" style="display: none;">
-      <header>
-        <h1>Inventory Management Dashboard</h1>
-        <button id="logoutBtn">Logout</button>
-      </header>
-      <main>
-        <section class="upload-section">
-          <h2>Upload Inventory File</h2>
-          <form id="uploadForm">
-            <input type="file" id="fileInput" accept=".csv, .xlsx, .xls" required>
-            <button type="submit">Upload File</button>
-          </form>
-          <div id="uploadMessage" class="message"></div>
-        </section>
-        <section class="inventory-section">
-          <div class="inventory-header">
-            <h2>Current Inventory</h2>
-            <div class="buttons">
-              <button id="refreshBtn">Refresh Inventory</button>
-              <button id="clearBtn">Clear Inventory</button>
-            </div>
-          </div>
-          <div id="inventoryContainer"></div>
-        </section>
-        <!-- Manual Addition Section -->
-        <section class="manual-section">
-          <h2>Add Inventory Manually</h2>
-          <form id="manualForm">
-            <input type="text" id="itemName" placeholder="Item Name" required>
-            <input type="number" id="quantity" placeholder="Quantity" required>
-            <input type="text" id="description" placeholder="Description">
-            <button type="submit">Add Item</button>
-          </form>
-        </section>
-        <!-- Search Section -->
-        <section class="search-section">
-          <h2>Search Inventory</h2>
-          <input type="text" id="searchInput" placeholder="Search...">
-          <button id="searchBtn">Search</button>
-        </section>
-      </main>
-    </section>
+  <!-- LOGIN / REGISTER -->
+  <div id="authContainer">
+    <div class="auth-card">
+      <h2 id="authTitle">Login</h2>
+      <form id="authForm">
+        <input type="text" id="authUsername" placeholder="Email or Username" required />
+        <input type="password" id="authPassword" placeholder="Password" required />
+        <button type="submit" id="authSubmit">Login</button>
+      </form>
+      <p class="switch-text">
+        <span id="switchPrompt">Don't have an account?</span>
+        <a href="#" id="switchLink">Register</a>
+      </p>
+    </div>
   </div>
-  
-  <!-- Toast notification container -->
+
+  <!-- DASHBOARD -->
+  <div id="dashboard" class="hidden">
+    <!-- HEADER -->
+    <header class="dash-header">
+      <div class="title">
+        <i class="fas fa-box"></i>
+        <div>
+          <h1>Inventory Dashboard</h1>
+          <p>Manage your inventory efficiently</p>
+        </div>
+      </div>
+      <button id="logoutBtn" class="btn-logout">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </button>
+    </header>
+
+    <main class="dash-main">
+      <!-- UPLOAD + MANUAL ENTRY ROW -->
+      <div class="grid-two">
+        <div class="card upload-card">
+          <h2>Upload Inventory File</h2>
+          <label for="fileInput" class="file-drop">
+            <i class="fas fa-upload fa-2x"></i>
+            <p>Drop your CSV or XLSX file here<br/>or click to browse</p>
+            <input type="file" id="fileInput" accept=".csv,.xlsx" />
+          </label>
+          <button id="uploadBtn" class="btn-action">Upload File</button>
+          <small class="hint">Supported formats: CSV, XLSX</small>
+        </div>
+        <div class="card manual-card">
+          <h2>Add Manually</h2>
+          <form id="manualForm">
+            <input type="text" id="itemName" placeholder="Item Name" required />
+            <input type="number" id="quantity" placeholder="Quantity" required />
+            <input type="text" id="description" placeholder="Description" />
+            <button type="submit" class="btn-action">Add Entry</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- INVENTORY TABLE -->
+      <div class="card table-card">
+        <div class="table-header">
+          <h2>Current Inventory</h2>
+          <input type="text" id="searchInput" placeholder="Search inventory..." />
+        </div>
+        <div id="inventoryContainer">
+          <table id="inventoryTable">
+            <thead><tr><th>Name</th><th>Quantity</th><th>Description</th><th>Actions</th></tr></thead>
+            <tbody>
+              <tr><td colspan="4" class="empty">No inventory data available.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Toast -->
   <div id="toast"></div>
+
   <script src="script.js"></script>
 </body>
 </html>
