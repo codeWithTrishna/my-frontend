@@ -1,242 +1,203 @@
-// Update with your actual Worker URL
+// your worker URL here
 const workerURL = 'https://my-inventory-worker.shubhambalgude226.workers.dev';
 
 document.addEventListener('DOMContentLoaded', () => {
-  const authSection = document.getElementById("authSection");
-  const registerDiv = document.getElementById("registerDiv");
-  const loginDiv = document.getElementById("loginDiv");
-  const inventorySection = document.getElementById("inventorySection");
+  // auth elements
+  const authContainer = document.getElementById('authContainer');
+  const authTitle = document.getElementById('authTitle');
+  const authForm = document.getElementById('authForm');
+  const authUsername = document.getElementById('authUsername');
+  const authPassword = document.getElementById('authPassword');
+  const authSubmit = document.getElementById('authSubmit');
+  const switchLink = document.getElementById('switchLink');
+  const switchPrompt = document.getElementById('switchPrompt');
+  let isLogin = true;
 
-  // Enforce login as the default view
-  registerDiv.style.display = "none";
-  loginDiv.style.display = "block";
+  // dashboard elements
+  const dashboard = document.getElementById('dashboard');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const fileInput = document.getElementById('fileInput');
+  const uploadBtn = document.getElementById('uploadBtn');
+  const manualForm = document.getElementById('manualForm');
+  const searchInput = document.getElementById('searchInput');
+  const inventoryTable = document.getElementById('inventoryTable').querySelector('tbody');
 
-  // Toggle views between registration and login
-  document.getElementById("showLogin").addEventListener("click", (e) => {
+  // toast
+  const toast = document.getElementById('toast');
+  function showToast(msg, isError=false) {
+    toast.textContent = msg;
+    toast.style.background = isError ? 'rgba(200,0,0,0.8)' : 'rgba(0,0,0,0.7)';
+    toast.classList.add('show');
+    setTimeout(()=> toast.classList.remove('show'), 3000);
+  }
+
+  // SWITCH LOGIN / REGISTER
+  switchLink.addEventListener('click', e => {
     e.preventDefault();
-    registerDiv.style.display = "none";
-    loginDiv.style.display = "block";
+    isLogin = !isLogin;
+    authTitle.textContent = isLogin ? 'Login' : 'Register';
+    authSubmit.textContent = isLogin ? 'Login' : 'Register';
+    switchPrompt.textContent = isLogin
+      ? "Don't have an account?"
+      : 'Already have an account?';
+    switchLink.textContent = isLogin ? 'Register' : 'Login';
   });
-  document.getElementById("showRegister").addEventListener("click", (e) => {
-    e.preventDefault();
-    loginDiv.style.display = "none";
-    registerDiv.style.display = "block";
-  });
 
-  // Registration
-  document.getElementById("registerForm").addEventListener("submit", async (e) => {
+  // AUTH SUBMIT
+  authForm.addEventListener('submit', async e => {
     e.preventDefault();
-    const username = document.getElementById("registerUsername").value;
-    const password = document.getElementById("registerPassword").value;
+    const endpoint = isLogin ? '/login' : '/register';
     try {
-      const res = await fetch(workerURL + '/register', {
+      const res = await fetch(workerURL + endpoint, {
         method: 'POST',
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password })
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+          username: authUsername.value,
+          password: authPassword.value
+        })
       });
-      const msg = await res.text();
-      showToast(msg);
-    } catch (err) {
-      showToast("Registration error: " + err.message, true);
-    }
-  });
-
-  // Login
-  document.getElementById("loginForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const username = document.getElementById("loginUsername").value;
-    const password = document.getElementById("loginPassword").value;
-    try {
-      const res = await fetch(workerURL + '/login', {
-        method: 'POST',
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password })
-      });
-      if (res.ok) {
-        const data = await res.json();
-        localStorage.setItem("token", data.token);
-        authSection.style.display = "none";
-        inventorySection.style.display = "block";
-        fetchInventory();
+      const text = await res.text();
+      if (!res.ok) throw new Error(text);
+      if (isLogin) {
+        const { token } = JSON.parse(text);
+        localStorage.setItem('token', token);
+        showDashboard();
       } else {
-        const errorMsg = await res.text();
-        showToast("Login failed: " + errorMsg, true);
+        showToast(text);
+        // auto‑switch to login
+        switchLink.click();
       }
     } catch (err) {
-      showToast("Login error: " + err.message, true);
+      showToast(err.message, true);
     }
   });
 
-  // Logout
-  document.getElementById("logoutBtn").addEventListener("click", () => {
-    localStorage.removeItem("token");
-    authSection.style.display = "block";
-    inventorySection.style.display = "none";
-  });
-
-  // File upload (CSV and XLSX)
-  document.getElementById("uploadForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const fileInput = document.getElementById("fileInput");
-    if (!fileInput.files.length) {
-      showToast("Please select a file to upload.", true);
-      return;
-    }
-    const file = fileInput.files[0];
-    const token = localStorage.getItem("token");
-    try {
-      const fileData = await file.arrayBuffer();
-      let contentType = file.type;
-      // Fallback for XLS extensions
-      if (!contentType && file.name.endsWith(".xls")) {
-        contentType = "application/vnd.ms-excel";
-      }
-      const res = await fetch(workerURL, {
-        method: 'POST',
-        headers: {
-          "Authorization": "Bearer " + token,
-          "Content-Type": contentType
-        },
-        body: fileData
-      });
-      const msg = await res.text();
-      showToast(msg);
-      fetchInventory();
-    } catch (err) {
-      showToast("Upload error: " + err.message, true);
-    }
-  });
-
-  // Manual addition
-  document.getElementById("manualForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const record = {
-      itemName: document.getElementById("itemName").value,
-      quantity: document.getElementById("quantity").value,
-      description: document.getElementById("description").value
-    };
-    const token = localStorage.getItem("token");
-    try {
-      const res = await fetch(workerURL, {
-        method: 'POST',
-        headers: {
-          "Authorization": "Bearer " + token,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(record)
-      });
-      const msg = await res.text();
-      showToast(msg);
-      fetchInventory();
-    } catch (err) {
-      showToast("Error adding record: " + err.message, true);
-    }
-  });
-
-  // Refresh inventory
-  document.getElementById("refreshBtn").addEventListener("click", () => {
+  // SHOW DASHBOARD
+  function showDashboard() {
+    authContainer.classList.add('hidden');
+    dashboard.classList.remove('hidden');
     fetchInventory();
+  }
+
+  // LOGOUT
+  logoutBtn.addEventListener('click', () => {
+    localStorage.removeItem('token');
+    dashboard.classList.add('hidden');
+    authContainer.classList.remove('hidden');
+    authUsername.value = authPassword.value = '';
   });
 
-  // Clear inventory
-  document.getElementById("clearBtn").addEventListener("click", async () => {
-    const token = localStorage.getItem("token");
+  // UPLOAD
+  uploadBtn.addEventListener('click', async () => {
+    if (!fileInput.files.length) return showToast('Select a file first', true);
+    const token = localStorage.getItem('token');
+    const data = await fileInput.files[0].arrayBuffer();
+    const ct = fileInput.files[0].name.endsWith('.csv')
+      ? 'text/csv' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
     try {
       const res = await fetch(workerURL, {
-        method: 'DELETE',
+        method: 'POST',
         headers: {
-          "Authorization": "Bearer " + token
-        }
+          'Authorization':'Bearer '+token,
+          'Content-Type': ct
+        },
+        body: data
       });
       const msg = await res.text();
       showToast(msg);
       fetchInventory();
-    } catch (err) {
-      showToast("Error clearing inventory: " + err.message, true);
+    } catch (e) {
+      showToast(e.message, true);
     }
   });
 
-  // Search inventory
-  document.getElementById("searchBtn").addEventListener("click", () => {
-    const query = document.getElementById("searchInput").value;
-    fetchInventory(query);
+  // MANUAL ADD
+  manualForm.addEventListener('submit', async e => {
+    e.preventDefault();
+    const token = localStorage.getItem('token');
+    const rec = {
+      itemName: document.getElementById('itemName').value,
+      quantity: document.getElementById('quantity').value,
+      description: document.getElementById('description').value
+    };
+    try {
+      const res = await fetch(workerURL, {
+        method:'POST',
+        headers:{
+          'Authorization':'Bearer '+token,
+          'Content-Type':'application/json'
+        },
+        body: JSON.stringify(rec)
+      });
+      const msg = await res.text();
+      showToast(msg);
+      fetchInventory();
+      manualForm.reset();
+    } catch (e) {
+      showToast(e.message, true);
+    }
   });
 
-  // Fetch inventory (with optional search)
-  async function fetchInventory(searchQuery = "") {
-    const token = localStorage.getItem("token");
-    let url = workerURL;
-    if (searchQuery) url += "?q=" + encodeURIComponent(searchQuery);
+  // SEARCH
+  searchInput.addEventListener('input', () => fetchInventory(searchInput.value));
+
+  // FETCH & RENDER INVENTORY
+  async function fetchInventory(q='') {
+    const token = localStorage.getItem('token');
     try {
+      let url = workerURL + (q ? '?q='+encodeURIComponent(q) : '');
       const res = await fetch(url, {
-        method: 'GET',
-        headers: { "Authorization": "Bearer " + token }
+        headers:{ 'Authorization':'Bearer '+token }
       });
-      if (!res.ok) throw new Error("Failed to fetch inventory.");
+      if (!res.ok) throw new Error(await res.text());
       const data = await res.json();
-      displayInventory(data);
-      showToast("Inventory refreshed.");
-    } catch (err) {
-      showToast("Fetch error: " + err.message, true);
+      renderTable(data);
+    } catch (e) {
+      showToast(e.message, true);
     }
   }
 
-  // Display inventory table with an edit button for each record
+  function renderTable(items) {
+    inventoryTable.innerHTML = '';
+    if (!items.length) {
+      inventoryTable.innerHTML = '<tr><td colspan="4" class="empty">No inventory data available.</td></tr>';
+      return;
+    }
+    items.forEach(item => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${item.itemName||''}</td>
+        <td>${item.quantity||''}</td>
+        <td>${item.description||''}</td>
+        <td>
+          <button class="btn-action" onclick="editRecord('${item.key}')">Edit</button>
+        </td>`;
+      inventoryTable.appendChild(tr);
+    });
+  }
+
+  // EDIT RECORD (global fn)
   window.editRecord = async function(key) {
-    const token = localStorage.getItem("token");
-    const currentData = prompt("Enter new JSON data for record with key " + key + " (must be valid JSON):");
-    if (!currentData) return;
+    const token = localStorage.getItem('token');
+    const json = prompt('Enter valid JSON to update:');
+    if (!json) return;
     try {
-      const updatedData = JSON.parse(currentData);
-      const res = await fetch(workerURL + "?key=" + encodeURIComponent(key), {
-        method: 'PUT',
-        headers: {
-          "Authorization": "Bearer " + token,
-          "Content-Type": "application/json"
+      const res = await fetch(workerURL+'?key='+encodeURIComponent(key), {
+        method:'PUT',
+        headers:{
+          'Authorization':'Bearer '+token,
+          'Content-Type':'application/json'
         },
-        body: JSON.stringify(updatedData)
+        body: json
       });
       const msg = await res.text();
       showToast(msg);
       fetchInventory();
-    } catch (err) {
-      showToast("Update error: " + err.message, true);
+    } catch (e) {
+      showToast(e.message, true);
     }
   };
 
-  function displayInventory(inventory) {
-    const container = document.getElementById("inventoryContainer");
-    if (!inventory.length) {
-      container.innerHTML = "<p>No inventory data available.</p>";
-      return;
-    }
-    const headers = Object.keys(inventory[0]);
-    headers.push("Actions");
-    let table = `<table>
-      <thead>
-        <tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr>
-      </thead>
-      <tbody>`;
-    inventory.forEach(item => {
-      table += `<tr>`;
-      headers.slice(0, -1).forEach(h => {
-        table += `<td>${item[h] || "N/A"}</td>`;
-      });
-      table += `<td><button onclick="editRecord('${item.key}')">Edit</button></td>`;
-      table += `</tr>`;
-    });
-    table += `</tbody></table>`;
-    container.innerHTML = table;
-  }
-
-  // Toast notifications
-  function showToast(message, isError = false) {
-    const toast = document.getElementById("toast");
-    toast.textContent = message;
-    toast.style.backgroundColor = isError ? 'red' : '#28a745';
-    toast.classList.add("show");
-    setTimeout(() => {
-      toast.classList.remove("show");
-    }, 3000);
-  }
+  // auto‑login if token exists
+  if (localStorage.getItem('token')) showDashboard();
 });
