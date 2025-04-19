@@ -61,9 +61,9 @@
         <div class="card manual-card">
           <h2>Add Manually</h2>
           <form id="manualForm">
-            <!-- Step 1: pick your action -->
+            <!-- Step 1: pick action -->
             <select id="manualAction" class="manual-select" required>
-              <option value="" disabled selected>Choose action…</option>
+              <option value="" disabled selected>Choose Action…</option>
               <option value="addField">Add Field</option>
               <option value="addEntry">Add Entry</option>
             </select>
@@ -77,6 +77,7 @@
                 placeholder="Enter field name"
                 required
               />
+              <button type="submit" class="btn-action">Add Field</button>
             </div>
         
             <!-- Step 2b: big plus button for entry -->
@@ -92,7 +93,6 @@
             </div>
           </form>
         </div>
-
       </div>
 
       <!-- INVENTORY TABLE -->
