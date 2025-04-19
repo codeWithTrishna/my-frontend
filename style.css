@@ -50,9 +50,7 @@ body {
   padding: 1rem 2rem; background: rgba(255,255,255,0.25);
   backdrop-filter: blur(8px);
 }
-.dash-header .title {
-  display: flex; align-items: center;
-}
+.dash-header .title { display: flex; align-items: center; }
 .dash-header .title i {
   font-size: 2rem; margin-right: .75rem; color: #fff;
 }
@@ -111,6 +109,17 @@ body {
   color: #aaa; font-size: .8rem;
 }
 
+/* Uploaded files list */
+.uploaded-files {
+  margin-top: .5rem;
+  font-size: .9rem;
+}
+.uploaded-files ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+  margin: .25rem 0;
+}
+
 /* MANUAL CARD STYLES */
 .manual-card form {
   display: flex;
@@ -140,8 +149,6 @@ body {
   margin: 0 auto;
 }
 .circle-btn:hover { background: #131c2e; }
-
-/* input for new field */
 #newFieldContainer input {
   width: 100%;
   padding: 0.7rem;
@@ -150,7 +157,7 @@ body {
   font-size: 1rem;
 }
 
-/* TABLE CARD & EDIT/DELETE BUTTONS */
+/* TABLE CARD & ACTIONS */
 .table-card {
   grid-column: span 2;
 }
@@ -161,12 +168,18 @@ body {
 .table-header h2 {
   margin: 0; font-size: 1.3rem; color: #0f172a;
 }
+.header-actions {
+  display: flex; align-items: center; gap: .5rem;
+}
 .table-header input {
   padding: .6rem; border: 1px solid #ddd; border-radius: 6px;
   width: 200px;
 }
+.clear-btn {
+  width: auto; padding: .5rem .75rem;
+}
 
-/* TABLE CARD */
+/* TABLE STYLES */
 #inventoryContainer {
   overflow-x: auto;
 }
@@ -196,7 +209,16 @@ body {
   background: rgba(227,52,47,0.1);
 }
 
-/* TOAST (dynamic messages) */
+/* INLINE-EDITING INPUT */
+.editable-input {
+  width: 100%;
+  padding: 4px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: .9rem;
+}
+
+/* DYNAMIC TOASTS */
 .toast {
   position: fixed;
   bottom: 1.5rem;
@@ -215,12 +237,3 @@ body {
 }
 .toast.success { background: rgba(0,128,0,0.8); }
 .toast.error   { background: rgba(200,0,0,0.8); }
-
-/* INLINE-EDITING INPUT */
-.editable-input {
-  width: 100%;
-  padding: 4px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: .9rem;
-}
