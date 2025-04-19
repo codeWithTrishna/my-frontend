@@ -61,31 +61,38 @@
         <div class="card manual-card">
           <h2>Add Manually</h2>
           <form id="manualForm">
-            <!-- 1️⃣ Pick action -->
+            <!-- Step 1: pick your action -->
             <select id="manualAction" class="manual-select" required>
-              <option value="" disabled selected>Choose Action…</option>
-              <option value="addEntry">Add Entry</option>
+              <option value="" disabled selected>Choose action…</option>
               <option value="addField">Add Field</option>
+              <option value="addEntry">Add Entry</option>
             </select>
-
-            <!-- 2️⃣ If adding a brand‑new field -->
+        
+            <!-- Step 2a: new field name -->
             <div id="newFieldContainer" class="hidden">
-              <input type="text" id="newFieldName" placeholder="Enter field name" required />
+              <input
+                type="text"
+                id="newFieldName"
+                class="manual-input"
+                placeholder="Enter field name"
+                required
+              />
             </div>
-
-            <!-- 2️⃣ If adding an entry to an existing field -->
-            <div id="fieldSelectContainer" class="hidden">
-              <select id="manualFieldSelect" class="manual-select" required>
-                <option value="" disabled selected>Select field to add</option>
-              </select>
+        
+            <!-- Step 2b: big plus button for entry -->
+            <div id="addEntryContainer" class="hidden">
+              <button
+                type="button"
+                id="addEntryBtn"
+                class="circle-btn"
+                title="Click to add a new row"
+              >
+                <i class="fas fa-plus"></i>
+              </button>
             </div>
-
-            <!-- 3️⃣ Submit button -->
-            <button type="submit" id="manualSubmit" class="btn-action hidden">
-              Submit
-            </button>
           </form>
         </div>
+
       </div>
 
       <!-- INVENTORY TABLE -->
