@@ -8,6 +8,10 @@ body {
 }
 
 /* UTILITIES */
+
+.hidden {
+  display: none !important;
+}
 #authContainer.hidden,
 #dashboard.hidden {
   display: none;
