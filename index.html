@@ -56,13 +56,34 @@
           <button id="uploadBtn" class="btn-action">Upload File</button>
           <small class="hint">Supported formats: CSV, XLSX</small>
         </div>
+
+        <!-- ==== UPDATED MANUAL CARD ==== -->
         <div class="card manual-card">
           <h2>Add Manually</h2>
           <form id="manualForm">
-            <input type="text" id="itemName" placeholder="Item Name" required />
-            <input type="number" id="quantity" placeholder="Quantity" required />
-            <input type="text" id="description" placeholder="Description" />
-            <button type="submit" class="btn-action">Add Entry</button>
+            <!-- 1️⃣ Pick action -->
+            <select id="manualAction" class="manual-select" required>
+              <option value="" disabled selected>Choose Action…</option>
+              <option value="addEntry">Add Entry</option>
+              <option value="addField">Add Field</option>
+            </select>
+
+            <!-- 2️⃣ If adding a brand‑new field -->
+            <div id="newFieldContainer" class="hidden">
+              <input type="text" id="newFieldName" placeholder="Enter field name" required />
+            </div>
+
+            <!-- 2️⃣ If adding an entry to an existing field -->
+            <div id="fieldSelectContainer" class="hidden">
+              <select id="manualFieldSelect" class="manual-select" required>
+                <option value="" disabled selected>Select field to add</option>
+              </select>
+            </div>
+
+            <!-- 3️⃣ Submit button -->
+            <button type="submit" id="manualSubmit" class="btn-action hidden">
+              Submit
+            </button>
           </form>
         </div>
       </div>
@@ -75,9 +96,18 @@
         </div>
         <div id="inventoryContainer">
           <table id="inventoryTable">
-            <thead><tr><th>Name</th><th>Quantity</th><th>Description</th><th>Actions</th></tr></thead>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Quantity</th>
+                <th>Description</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
             <tbody>
-              <tr><td colspan="4" class="empty">No inventory data available.</td></tr>
+              <tr>
+                <td colspan="4" class="empty">No inventory data available.</td>
+              </tr>
             </tbody>
           </table>
         </div>
