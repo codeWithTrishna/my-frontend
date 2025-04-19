@@ -1,12 +1,9 @@
 console.log("⏳ script.js loaded");
-
-// your worker URL here
+// your Worker URL:
 const workerURL = 'https://my-inventory-worker.shubhambalgude226.workers.dev';
 
 document.addEventListener('DOMContentLoaded', () => {
-  console.log("🔌 attaching authForm listener");
-
-  // ─── AUTH ELEMENTS ────────────────────────────────────────────────────────
+  // AUTH elements
   const authContainer = document.getElementById('authContainer');
   const authTitle     = document.getElementById('authTitle');
   const authForm      = document.getElementById('authForm');
@@ -17,15 +14,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const switchPrompt  = document.getElementById('switchPrompt');
   let isLogin = true;
 
-  // ─── DASHBOARD ELEMENTS ────────────────────────────────────────────────────
+  // DASHBOARD elements
   const dashboard          = document.getElementById('dashboard');
   const logoutBtn          = document.getElementById('logoutBtn');
   const fileInput          = document.getElementById('fileInput');
   const uploadBtn          = document.getElementById('uploadBtn');
   const searchInput        = document.getElementById('searchInput');
-  const inventoryTableBody = document.querySelector('#inventoryTable tbody');
 
-  // ─── MANUAL CARD ELEMENTS ─────────────────────────────────────────────────
+  // MANUAL entry elements
   const manualForm        = document.getElementById('manualForm');
   const manualAction      = document.getElementById('manualAction');
   const newFieldContainer = document.getElementById('newFieldContainer');
@@ -33,18 +29,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const newFieldNameInput = document.getElementById('newFieldName');
   const addEntryBtn       = document.getElementById('addEntryBtn');
 
-  // ─── TOAST ────────────────────────────────────────────────────────────────
-  const toast = document.getElementById('toast');
+  // Toast
   function showToast(msg, isError = false) {
+    const toast = document.createElement('div');
+    toast.className = 'toast ' + (isError ? 'error' : 'success');
     toast.textContent = msg;
-    toast.style.background = isError
-      ? 'rgba(200,0,0,0.8)'
-      : 'rgba(0,0,0,0.7)';
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 3000);
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
   }
 
-  // ─── SWITCH LOGIN / REGISTER ──────────────────────────────────────────────
+  // Switch login/register
   switchLink.addEventListener('click', e => {
     e.preventDefault();
     isLogin = !isLogin;
@@ -56,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     switchLink.textContent   = isLogin ? 'Register' : 'Login';
   });
 
-  // ─── AUTH SUBMIT ──────────────────────────────────────────────────────────
+  // Auth submit
   authForm.addEventListener('submit', async e => {
     e.preventDefault();
     const endpoint = isLogin ? '/login' : '/register';
@@ -71,7 +65,6 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       const text = await res.text();
       if (!res.ok) throw new Error(text);
-
       if (isLogin) {
         const { token } = JSON.parse(text);
         localStorage.setItem('token', token);
@@ -85,14 +78,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // ─── SHOW DASHBOARD ───────────────────────────────────────────────────────
+  // Show dashboard
   function showDashboard() {
     authContainer.classList.add('hidden');
     dashboard    .classList.remove('hidden');
     fetchInventory();
   }
 
-  // ─── LOGOUT ──────────────────────────────────────────────────────────────
+  // Logout
   logoutBtn.addEventListener('click', () => {
     localStorage.removeItem('token');
     dashboard.classList.add('hidden');
@@ -100,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
     authUsername.value = authPassword.value = '';
   });
 
-  // ─── UPLOAD FILE ─────────────────────────────────────────────────────────
+  // Upload CSV/XLSX
   uploadBtn.addEventListener('click', async () => {
     if (!fileInput.files.length)
       return showToast('Select a file first', true);
@@ -120,44 +113,34 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         body: data
       });
-      const msg = await res.text();
-      showToast(msg);
+      showToast(await res.text());
       fetchInventory();
     } catch (e) {
       showToast(e.message, true);
     }
   });
 
-  // ─── MANUAL CARD LOGIC ───────────────────────────────────────────────────
+  // Manual card toggle
   manualAction.addEventListener('change', () => {
-    // hide both containers
     newFieldContainer.classList.add('hidden');
     addEntryContainer.classList.add('hidden');
-
-    if (manualAction.value === 'addField') {
-      newFieldContainer.classList.remove('hidden');
-    }
-    else if (manualAction.value === 'addEntry') {
-      addEntryContainer.classList.remove('hidden');
-    }
+    if (manualAction.value === 'addField') newFieldContainer.classList.remove('hidden');
+    else if (manualAction.value === 'addEntry') addEntryContainer.classList.remove('hidden');
   });
 
-  // Add new FIELD on form submit
+  // Add Field
   manualForm.addEventListener('submit', async e => {
     e.preventDefault();
     if (manualAction.value !== 'addField') return;
-
     const fieldName = newFieldNameInput.value.trim();
     if (!fieldName) return showToast('Please enter a field name', true);
 
-    // 1) Insert new <th> before Actions
     const headerRow = document.querySelector('#inventoryTable thead tr');
     const actionsTh = headerRow.querySelector('th:last-child');
-    const newTh     = document.createElement('th');
+    const newTh = document.createElement('th');
     newTh.textContent = fieldName;
     headerRow.insertBefore(newTh, actionsTh);
 
-    // 2) Add blank <td> to every existing row
     document.querySelectorAll('#inventoryTable tbody tr').forEach(tr => {
       const lastTd = tr.querySelector('td:last-child');
       const td = document.createElement('td');
@@ -169,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
     newFieldContainer.classList.add('hidden');
   });
 
-  // Add new ROW ENTRY on "+" click
+  // Add manual entry row
   addEntryBtn.addEventListener('click', () => {
     const headers = Array.from(
       document.querySelectorAll('#inventoryTable thead th')
@@ -179,7 +162,6 @@ document.addEventListener('DOMContentLoaded', () => {
     headers.forEach(hdr => {
       const td = document.createElement('td');
       if (hdr === 'Actions') {
-        // Save + Delete buttons
         const saveBtn = document.createElement('button');
         saveBtn.textContent = 'Save';
         saveBtn.className   = 'btn-action';
@@ -201,8 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
               },
               body: JSON.stringify(record)
             });
-            const msg = await res.text();
-            showToast(msg);
+            showToast(await res.text());
             fetchInventory();
           } catch (err) {
             showToast(err.message, true);
@@ -224,101 +205,142 @@ document.addEventListener('DOMContentLoaded', () => {
       tr.appendChild(td);
     });
 
-    inventoryTableBody.appendChild(tr);
+    document.querySelector('#inventoryTable tbody').appendChild(tr);
     manualForm.reset();
     addEntryContainer.classList.add('hidden');
   });
 
-  // ─── SEARCH ────────────────────────────────────────────────────────────────
-  searchInput.addEventListener('input', () =>
-    fetchInventory(searchInput.value)
-  );
+  // Debounced search
+  let searchTimeout;
+  searchInput.addEventListener('input', () => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => fetchInventory(searchInput.value), 300);
+  });
 
-  // ─── FETCH & RENDER ───────────────────────────────────────────────────────
+  // Fetch & render
   async function fetchInventory(q = '') {
-    const token = localStorage.getItem('token');
     try {
       let url = workerURL + (q ? '?q=' + encodeURIComponent(q) : '');
       const res = await fetch(url, {
-        headers: { 'Authorization': 'Bearer ' + token }
+        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
       });
       if (!res.ok) throw new Error(await res.text());
-      const data = await res.json();
-      renderTable(data);
+      const items = await res.json();
+      renderTable(items);
     } catch (e) {
       showToast(e.message, true);
     }
   }
 
+  // Build table with inline editing
   function renderTable(items) {
-    // 1) Build headers
-    const headerRow = document.querySelector('#inventoryTable thead tr');
-    headerRow.innerHTML = '';
+    const table = document.getElementById('inventoryTable');
+    table.innerHTML = '';
+
+    // Build thead
+    const thead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
     const cols = items.length
       ? Object.keys(items[0]).filter(k => k !== 'key')
-      : ['Name','Quantity','Description'];
+      : [];
     cols.forEach(col => {
       const th = document.createElement('th');
       th.textContent = col;
       headerRow.appendChild(th);
     });
     headerRow.insertAdjacentHTML('beforeend','<th>Actions</th>');
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
 
-    // 2) Fill rows
-    inventoryTableBody.innerHTML = '';
+    // Build tbody
+    const tbody = document.createElement('tbody');
     if (!items.length) {
-      inventoryTableBody.innerHTML =
-        `<tr><td colspan="${cols.length+1}" class="empty">
-           No inventory data available.
-         </td></tr>`;
-      return;
-    }
-    items.forEach(item => {
       const tr = document.createElement('tr');
-      cols.forEach(col => {
-        const td = document.createElement('td');
-        td.textContent = item[col] || '';
-        tr.appendChild(td);
-      });
-      const td = document.createElement('td');
-      const editBtn = document.createElement('button');
-      editBtn.textContent = 'Edit';
-      editBtn.className   = 'btn-action';
-      editBtn.addEventListener('click', () => editRecord(item.key));
-      const deleteBtn = document.createElement('button');
-      deleteBtn.textContent = 'Delete';
-      deleteBtn.className   = 'btn-delete';
-      deleteBtn.addEventListener('click', () => { tr.remove(); showToast('Row removed'); });
-      td.append(editBtn, deleteBtn);
-      tr.appendChild(td);
-      inventoryTableBody.appendChild(tr);
-    });
-  }
-  window.renderTable = renderTable;
+      tr.innerHTML = `<td colspan="${cols.length+1}" class="empty">
+                        No inventory data available.
+                      </td>`;
+      tbody.appendChild(tr);
+    } else {
+      items.forEach(item => {
+        const tr = document.createElement('tr');
+        cols.forEach(col => {
+          const td = document.createElement('td');
+          td.textContent = item[col] || '';
+          tr.appendChild(td);
+        });
 
-  // ─── EDIT RECORD ──────────────────────────────────────────────────────────
-  window.editRecord = async function(key) {
-    const json = prompt('Enter valid JSON to update:');
-    if (!json) return;
-    try {
-      const res = await fetch(workerURL + '?key=' + encodeURIComponent(key), {
-        method: 'PUT',
-        headers: {
-          'Authorization': 'Bearer ' + localStorage.getItem('token'),
-          'Content-Type':  'application/json'
-        },
-        body: json
+        // Actions cell
+        const actionTd = document.createElement('td');
+        const editBtn = document.createElement('button');
+        editBtn.textContent = 'Edit';
+        editBtn.className   = 'btn-action';
+        editBtn.onclick = () => makeRowEditable(tr, item.key, item);
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.className   = 'btn-delete';
+        deleteBtn.onclick = () => {
+          if (confirm('Remove this record?')) {
+            fetch(workerURL + '?key=' + encodeURIComponent(item.key), {
+              method: 'DELETE',
+              headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+            })
+            .then(r => r.text())
+            .then(msg => { showToast(msg); fetchInventory(); })
+            .catch(e => showToast(e.message, true));
+          }
+        };
+        actionTd.append(editBtn, deleteBtn);
+        tr.appendChild(actionTd);
+        tbody.appendChild(tr);
       });
-      const msg = await res.text();
-      showToast(msg);
-      fetchInventory();
-    } catch (e) {
-      showToast(e.message, true);
     }
-  };
-
-  // ─── AUTO‑LOGIN ───────────────────────────────────────────────────────────
-  if (localStorage.getItem('token')) {
-    showDashboard();
+    table.appendChild(tbody);
   }
+
+  // Turn a row into inline-editable fields
+  function makeRowEditable(tr, key, original) {
+    const headers = [...document.querySelectorAll('#inventoryTable thead th')]
+      .map(th => th.textContent)
+      .filter(h => h !== 'Actions');
+
+    // Replace each cell with an <input>
+    tr.querySelectorAll('td').forEach((td, i) => {
+      if (i < headers.length) {
+        const field = headers[i];
+        const val = original[field] || '';
+        td.innerHTML = `<input class="editable-input" data-key="${field}" value="${val}">`;
+      }
+    });
+
+    // Swap action buttons
+    const actionTd = tr.lastElementChild;
+    actionTd.innerHTML = `
+      <button class="btn-action save-btn">Save</button>
+      <button class="btn-delete cancel-btn">Cancel</button>
+    `;
+    actionTd.querySelector('.save-btn').onclick = async () => {
+      const updated = {};
+      tr.querySelectorAll('input').forEach(inp => {
+        updated[inp.dataset.key] = inp.value;
+      });
+      try {
+        const res = await fetch(workerURL + '?key=' + encodeURIComponent(key), {
+          method: 'PUT',
+          headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token'),
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(updated)
+        });
+        showToast(await res.text());
+        fetchInventory();
+      } catch (e) {
+        showToast(e.message, true);
+      }
+    };
+    actionTd.querySelector('.cancel-btn').onclick = () => fetchInventory();
+  }
+
+  // AUTO‑LOGIN if token exists
+  if (localStorage.getItem('token')) showDashboard();
 });
