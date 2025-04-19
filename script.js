@@ -5,7 +5,8 @@ const workerURL = 'https://my-inventory-worker.shubhambalgude226.workers.dev';
 
 document.addEventListener('DOMContentLoaded', () => {
   console.log("🔌 attaching authForm listener");
-  // ─── AUTH ELEMENTS (UNCHANGED) ─────────────────────────────────────────────
+
+  // ─── AUTH ELEMENTS ────────────────────────────────────────────────────────
   const authContainer = document.getElementById('authContainer');
   const authTitle     = document.getElementById('authTitle');
   const authForm      = document.getElementById('authForm');
@@ -16,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const switchPrompt  = document.getElementById('switchPrompt');
   let isLogin = true;
 
-  // ─── DASHBOARD ELEMENTS (UNCHANGED) ────────────────────────────────────────
+  // ─── DASHBOARD ELEMENTS ────────────────────────────────────────────────────
   const dashboard          = document.getElementById('dashboard');
   const logoutBtn          = document.getElementById('logoutBtn');
   const fileInput          = document.getElementById('fileInput');
@@ -24,16 +25,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const searchInput        = document.getElementById('searchInput');
   const inventoryTableBody = document.querySelector('#inventoryTable tbody');
 
-  // ─── MANUAL‑CARD ELEMENTS (NEW) ───────────────────────────────────────────
-  const manualForm           = document.getElementById('manualForm');
-  const manualAction         = document.getElementById('manualAction');
-  const newFieldContainer    = document.getElementById('newFieldContainer');
-  const fieldSelectContainer = document.getElementById('fieldSelectContainer');
-  const newFieldNameInput    = document.getElementById('newFieldName');
-  const manualFieldSelect    = document.getElementById('manualFieldSelect');
-  const manualSubmit         = document.getElementById('manualSubmit');
+  // ─── MANUAL CARD ELEMENTS ─────────────────────────────────────────────────
+  const manualForm        = document.getElementById('manualForm');
+  const manualAction      = document.getElementById('manualAction');
+  const newFieldContainer = document.getElementById('newFieldContainer');
+  const addEntryContainer = document.getElementById('addEntryContainer');
+  const newFieldNameInput = document.getElementById('newFieldName');
+  const addEntryBtn       = document.getElementById('addEntryBtn');
 
-  // ─── TOAST (UNCHANGED) ────────────────────────────────────────────────────
+  // ─── TOAST ────────────────────────────────────────────────────────────────
   const toast = document.getElementById('toast');
   function showToast(msg, isError = false) {
     toast.textContent = msg;
@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => toast.classList.remove('show'), 3000);
   }
 
-  // ─── SWITCH LOGIN / REGISTER (UNCHANGED) ─────────────────────────────────
+  // ─── SWITCH LOGIN / REGISTER ──────────────────────────────────────────────
   switchLink.addEventListener('click', e => {
     e.preventDefault();
     isLogin = !isLogin;
@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
     switchLink.textContent   = isLogin ? 'Register' : 'Login';
   });
 
-  // ─── AUTH SUBMIT (UNCHANGED) ──────────────────────────────────────────────
+  // ─── AUTH SUBMIT ──────────────────────────────────────────────────────────
   authForm.addEventListener('submit', async e => {
     e.preventDefault();
     const endpoint = isLogin ? '/login' : '/register';
@@ -78,21 +78,21 @@ document.addEventListener('DOMContentLoaded', () => {
         showDashboard();
       } else {
         showToast(text);
-        switchLink.click();  // auto‑switch to login
+        switchLink.click();
       }
     } catch (err) {
       showToast(err.message, true);
     }
   });
 
-  // ─── SHOW DASHBOARD (UNCHANGED) ────────────────────────────────────────────
+  // ─── SHOW DASHBOARD ───────────────────────────────────────────────────────
   function showDashboard() {
     authContainer.classList.add('hidden');
     dashboard    .classList.remove('hidden');
     fetchInventory();
   }
 
-  // ─── LOGOUT (UNCHANGED) ───────────────────────────────────────────────────
+  // ─── LOGOUT ──────────────────────────────────────────────────────────────
   logoutBtn.addEventListener('click', () => {
     localStorage.removeItem('token');
     dashboard.classList.add('hidden');
@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
     authUsername.value = authPassword.value = '';
   });
 
-  // ─── UPLOAD FILE (UNCHANGED) ───────────────────────────────────────────────
+  // ─── UPLOAD FILE ─────────────────────────────────────────────────────────
   uploadBtn.addEventListener('click', async () => {
     if (!fileInput.files.length)
       return showToast('Select a file first', true);
@@ -116,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
         method: 'POST',
         headers: {
           'Authorization': 'Bearer ' + token,
-          'Content-Type': ct
+          'Content-Type':  ct
         },
         body: data
       });
@@ -128,144 +128,113 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // ─── MANUAL CARD LOGIC ────────────────────────────────────────────────────
-  // repopulate the "Select field to add" dropdown from current table headers
-  function updateFieldSelect() {
-    manualFieldSelect.innerHTML =
-      `<option value="" disabled selected>Select field to add</option>`;
-    document.querySelectorAll('#inventoryTable thead th').forEach(th => {
-      const name = th.textContent.trim();
-      if (name !== 'Actions') {
-        const opt = document.createElement('option');
-        opt.value = name;
-        opt.textContent = name;
-        manualFieldSelect.append(opt);
-      }
-    });
-  }
-
+  // ─── MANUAL CARD LOGIC ───────────────────────────────────────────────────
   manualAction.addEventListener('change', () => {
-    // hide everything to start
+    // hide both containers
     newFieldContainer.classList.add('hidden');
-    fieldSelectContainer.classList.add('hidden');
-    manualSubmit.classList.add('hidden');
+    addEntryContainer.classList.add('hidden');
 
     if (manualAction.value === 'addField') {
       newFieldContainer.classList.remove('hidden');
-      manualSubmit.textContent = 'Add Field';
-      manualSubmit.classList.remove('hidden');
     }
     else if (manualAction.value === 'addEntry') {
-      updateFieldSelect();
-      fieldSelectContainer.classList.remove('hidden');
-      manualSubmit.textContent = 'Add Entry';
-      manualSubmit.classList.remove('hidden');
+      addEntryContainer.classList.remove('hidden');
     }
   });
 
+  // Add new FIELD on form submit
   manualForm.addEventListener('submit', async e => {
     e.preventDefault();
-    const action = manualAction.value;
-    const token  = localStorage.getItem('token');
+    if (manualAction.value !== 'addField') return;
 
-    // —— ADD NEW COLUMN ——
-    if (action === 'addField') {
-      const fieldName = newFieldNameInput.value.trim();
-      if (!fieldName) return showToast('Enter a field name', true);
+    const fieldName = newFieldNameInput.value.trim();
+    if (!fieldName) return showToast('Please enter a field name', true);
 
-      // 1) insert <th> before Actions
-      const headerRow = document.querySelector('#inventoryTable thead tr');
-      const actionsTh = headerRow.querySelector('th:last-child');
-      const newTh     = document.createElement('th');
-      newTh.textContent = fieldName;
-      headerRow.insertBefore(newTh, actionsTh);
+    // 1) Insert new <th> before Actions
+    const headerRow = document.querySelector('#inventoryTable thead tr');
+    const actionsTh = headerRow.querySelector('th:last-child');
+    const newTh     = document.createElement('th');
+    newTh.textContent = fieldName;
+    headerRow.insertBefore(newTh, actionsTh);
 
-      // 2) add empty <td> in each existing row
-      document.querySelectorAll('#inventoryTable tbody tr').forEach(tr => {
-        const lastTd = tr.querySelector('td:last-child');
-        const td = document.createElement('td');
-        tr.insertBefore(td, lastTd);
-      });
+    // 2) Add blank <td> to every existing row
+    document.querySelectorAll('#inventoryTable tbody tr').forEach(tr => {
+      const lastTd = tr.querySelector('td:last-child');
+      const td = document.createElement('td');
+      tr.insertBefore(td, lastTd);
+    });
 
-      showToast(`Field "${fieldName}" added.`);
-      manualForm.reset();
-    }
-
-    // —— ADD NEW ROW ENTRY ——
-    else if (action === 'addEntry') {
-      const field = manualFieldSelect.value;
-      if (!field) return showToast('Select a field', true);
-
-      const tr = document.createElement('tr');
-      // gather current headers
-      const headers = Array.from(
-        document.querySelectorAll('#inventoryTable thead th'))
-        .map(th => th.textContent.trim());
-
-      headers.forEach(hdr => {
-        const td = document.createElement('td');
-        if (hdr === 'Actions') {
-          // Save + Delete buttons
-          const saveBtn = document.createElement('button');
-          saveBtn.textContent = 'Save';
-          saveBtn.className = 'btn-action';
-          saveBtn.addEventListener('click', async () => {
-            const record = {};
-            tr.querySelectorAll('td').forEach((cell, idx) => {
-              const key = headers[idx];
-              if (key !== 'Actions') {
-                const inp = cell.querySelector('input');
-                record[key] = inp ? inp.value : '';
-              }
-            });
-            try {
-              const res = await fetch(workerURL, {
-                method: 'POST',
-                headers: {
-                  'Authorization': 'Bearer ' + token,
-                  'Content-Type':  'application/json'
-                },
-                body: JSON.stringify(record)
-              });
-              const msg = await res.text();
-              showToast(msg);
-              fetchInventory();
-            } catch (err) {
-              showToast(err.message, true);
-            }
-          });
-
-          const deleteBtn = document.createElement('button');
-          deleteBtn.textContent = 'Delete';
-          deleteBtn.className = 'btn-delete';
-          deleteBtn.addEventListener('click', () => tr.remove());
-
-          td.append(saveBtn, deleteBtn);
-        } else {
-          const input = document.createElement('input');
-          input.type = 'text';
-          input.placeholder = hdr;
-          td.appendChild(input);
-        }
-        tr.appendChild(td);
-      });
-
-      inventoryTableBody.appendChild(tr);
-      manualForm.reset();
-    }
-
-    // hide inputs after submit
+    showToast(`Field "${fieldName}" added.`);
+    manualForm.reset();
     newFieldContainer.classList.add('hidden');
-    fieldSelectContainer.classList.add('hidden');
-    manualSubmit.classList.add('hidden');
   });
 
-  // ─── SEARCH (UNCHANGED) ───────────────────────────────────────────────────
+  // Add new ROW ENTRY on "+" click
+  addEntryBtn.addEventListener('click', () => {
+    const headers = Array.from(
+      document.querySelectorAll('#inventoryTable thead th')
+    ).map(th => th.textContent.trim());
+
+    const tr = document.createElement('tr');
+    headers.forEach(hdr => {
+      const td = document.createElement('td');
+      if (hdr === 'Actions') {
+        // Save + Delete buttons
+        const saveBtn = document.createElement('button');
+        saveBtn.textContent = 'Save';
+        saveBtn.className   = 'btn-action';
+        saveBtn.addEventListener('click', async () => {
+          const record = {};
+          tr.querySelectorAll('td').forEach((cell, idx) => {
+            const key = headers[idx];
+            if (key !== 'Actions') {
+              const inp = cell.querySelector('input');
+              record[key] = inp ? inp.value : '';
+            }
+          });
+          try {
+            const res = await fetch(workerURL, {
+              method: 'POST',
+              headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                'Content-Type':  'application/json'
+              },
+              body: JSON.stringify(record)
+            });
+            const msg = await res.text();
+            showToast(msg);
+            fetchInventory();
+          } catch (err) {
+            showToast(err.message, true);
+          }
+        });
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.className   = 'btn-delete';
+        deleteBtn.addEventListener('click', () => tr.remove());
+
+        td.append(saveBtn, deleteBtn);
+      } else {
+        const inp = document.createElement('input');
+        inp.type = 'text';
+        inp.placeholder = hdr;
+        td.appendChild(inp);
+      }
+      tr.appendChild(td);
+    });
+
+    inventoryTableBody.appendChild(tr);
+    manualForm.reset();
+    addEntryContainer.classList.add('hidden');
+  });
+
+  // ─── SEARCH ────────────────────────────────────────────────────────────────
   searchInput.addEventListener('input', () =>
     fetchInventory(searchInput.value)
   );
 
-  // ─── FETCH & RENDER INVENTORY ─────────────────────────────────────────────
+  // ─── FETCH & RENDER ───────────────────────────────────────────────────────
   async function fetchInventory(q = '') {
     const token = localStorage.getItem('token');
     try {
@@ -282,81 +251,60 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function renderTable(items) {
-    // 1) Rebuild headers dynamically from first item
+    // 1) Build headers
     const headerRow = document.querySelector('#inventoryTable thead tr');
     headerRow.innerHTML = '';
-    if (items.length) {
-      const keys = Object.keys(items[0]).filter(k => k !== 'key');
-      keys.forEach(k => {
-        const th = document.createElement('th');
-        th.textContent = k;
-        headerRow.appendChild(th);
-      });
-    } else {
-      // default to Name/Quantity/Description if no data yet
-      ['Name','Quantity','Description'].forEach(t => {
-        const th = document.createElement('th');
-        th.textContent = t;
-        headerRow.appendChild(th);
-      });
-    }
-    // always add Actions column
+    const cols = items.length
+      ? Object.keys(items[0]).filter(k => k !== 'key')
+      : ['Name','Quantity','Description'];
+    cols.forEach(col => {
+      const th = document.createElement('th');
+      th.textContent = col;
+      headerRow.appendChild(th);
+    });
     headerRow.insertAdjacentHTML('beforeend','<th>Actions</th>');
 
-    // 2) Populate rows
+    // 2) Fill rows
     inventoryTableBody.innerHTML = '';
     if (!items.length) {
       inventoryTableBody.innerHTML =
-        `<tr><td colspan="${headerRow.children.length}" class="empty">
+        `<tr><td colspan="${cols.length+1}" class="empty">
            No inventory data available.
          </td></tr>`;
-      updateFieldSelect();
       return;
     }
-
     items.forEach(item => {
       const tr = document.createElement('tr');
-      Object.entries(item).forEach(([key,val]) => {
-        if (key === 'key') return;
+      cols.forEach(col => {
         const td = document.createElement('td');
-        td.textContent = val;
+        td.textContent = item[col] || '';
         tr.appendChild(td);
       });
-      // actions cell
       const td = document.createElement('td');
       const editBtn = document.createElement('button');
       editBtn.textContent = 'Edit';
-      editBtn.className = 'btn-action';
+      editBtn.className   = 'btn-action';
       editBtn.addEventListener('click', () => editRecord(item.key));
-
       const deleteBtn = document.createElement('button');
       deleteBtn.textContent = 'Delete';
-      deleteBtn.className = 'btn-delete';
-      deleteBtn.addEventListener('click', () => {
-        tr.remove();
-        showToast('Row removed');
-      });
-
+      deleteBtn.className   = 'btn-delete';
+      deleteBtn.addEventListener('click', () => { tr.remove(); showToast('Row removed'); });
       td.append(editBtn, deleteBtn);
       tr.appendChild(td);
       inventoryTableBody.appendChild(tr);
     });
-
-    // 3) Update the manual‑field dropdown so it matches these headers
-    updateFieldSelect();
   }
-  window.renderTable = renderTable; // expose if needed
+  window.renderTable = renderTable;
 
-  // ─── EDIT RECORD (UNCHANGED) ──────────────────────────────────────────────
+  // ─── EDIT RECORD ──────────────────────────────────────────────────────────
   window.editRecord = async function(key) {
-    const token = localStorage.getItem('token');
-    const json  = prompt('Enter valid JSON to update:');
+    const json = prompt('Enter valid JSON to update:');
     if (!json) return;
     try {
       const res = await fetch(workerURL + '?key=' + encodeURIComponent(key), {
         method: 'PUT',
         headers: {
-          'Authorization': 'Bearer ' + token,
+          'Authorization': 'Bearer ' + localStorage.getItem('token'),
           'Content-Type':  'application/json'
         },
         body: json
@@ -369,7 +317,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  // ─── AUTO‑LOGIN ON REFRESH ─────────────────────────────────────────────────
+  // ─── AUTO‑LOGIN ───────────────────────────────────────────────────────────
   if (localStorage.getItem('token')) {
     showDashboard();
   }
