@@ -57,18 +57,15 @@
           <small class="hint">Supported formats: CSV, XLSX</small>
         </div>
 
-        <!-- ==== UPDATED MANUAL CARD ==== -->
         <div class="card manual-card">
           <h2>Add Manually</h2>
           <form id="manualForm">
-            <!-- Step 1: pick action -->
             <select id="manualAction" class="manual-select" required>
               <option value="" disabled selected>Choose Action…</option>
               <option value="addField">Add Field</option>
               <option value="addEntry">Add Entry</option>
             </select>
         
-            <!-- Step 2a: new field name -->
             <div id="newFieldContainer" class="hidden">
               <input
                 type="text"
@@ -80,7 +77,6 @@
               <button type="submit" class="btn-action">Add Field</button>
             </div>
         
-            <!-- Step 2b: big plus button for entry -->
             <div id="addEntryContainer" class="hidden">
               <button
                 type="button"
@@ -102,28 +98,12 @@
           <input type="text" id="searchInput" placeholder="Search inventory..." />
         </div>
         <div id="inventoryContainer">
-          <table id="inventoryTable">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Quantity</th>
-                <th>Description</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td colspan="4" class="empty">No inventory data available.</td>
-              </tr>
-            </tbody>
-          </table>
+          <!-- script.js will populate this -->
+          <table id="inventoryTable"></table>
         </div>
       </div>
     </main>
   </div>
-
-  <!-- Toast -->
-  <div id="toast"></div>
 
   <script src="script.js"></script>
 </body>
