@@ -1,5 +1,5 @@
 console.log("⏳ script.js loaded");
-const workerURL = 'https://my-inventory-worker.trishnajaiswar226.workers.dev/';
+const workerURL = 'https://my-inventory-worker.trishnajaiswar226.workers.dev';
 
 document.addEventListener('DOMContentLoaded', () => {
   // AUTH elements
